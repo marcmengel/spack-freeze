@@ -11,8 +11,7 @@ def setup_parser(subparser):
 def freeze(parser, args):
     #print("parser is " + repr(parser) + "args: " + repr(args))
     results = args.specs()
-    print(f"#need to handle: {results[0].__dict__}")
-    print(f"#have {results[0].name} hash {results[0]._hash}")
+    print(f"# spack freeeze of {results[0].name}/{results[0]._hash[:8]}")
 
     print("packages:")
     did_already = set()
@@ -24,13 +23,12 @@ def freeze(parser, args):
                     continue
                 ppos = line.find('/')
                 apos = line.find('@')
-                specstr = line[:ppos-1]
+                specstr = line[:ppos-1].strip()
                 path = line[ppos:]
                 name = line[:apos]
                 if name in did_already:
                     continue
                 did_already.add(name)
-
                 print(f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false")
 
 
