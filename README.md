@@ -9,11 +9,15 @@ a [Spack extension](https://spack.readthedocs.io/en/latest/extensions.html#custo
 
 In most cases you can just do:
 
-  spack freeze package@version > freeze_package.yaml
-
+  spack freeze pkg@ver1 > freeze_pkg.yaml
 
 You can then include freeze_package.yaml in an envrionment spack.yaml file
 to use that package as a dependency.
+
+    spack:
+      include:
+      - freeze_pkg.yaml
+      specs: [pkg2@ver2 ^pkge@ver1]
 
 ### Installation
 
