@@ -17,7 +17,7 @@ to use that package as a dependency.
     spack:
       include:
       - freeze_pkg.yaml
-      specs: [pkg2@ver2 ^pkge@ver1]
+      specs: [pkg2@ver2 ^pkg@ver1]
 
 ### Installation
 
