@@ -4,6 +4,10 @@ import spack.config
 import spack.cmd
 import spack.cmd.common.arguments as arguments
 
+description = "Build packages.yaml fragment to freeze a package in an environment"
+section = "basic"
+level = "short"
+
 def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["constraint"])
 
