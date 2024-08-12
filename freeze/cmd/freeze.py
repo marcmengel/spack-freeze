@@ -5,11 +5,13 @@ import spack.cmd
 import spack.environment as ev
 import spack.cmd.common.arguments as arguments
 import spack.util.spack_yaml as syaml
+import llnl.util.tty.color
 
 
 description = "Build packages.yaml fragment to freeze a package in an environment"
 section = "environments"
 level = "short"
+
 
 def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["constraint"])
@@ -18,6 +20,9 @@ def setup_parser(subparser):
 
 def freeze(parser, args):
     # print("parser is " + repr(parser) + "args: " + repr(args))
+
+    # dont get color strings in the specs...
+    llnl.util.tty.color.set_color_when(False)
 
     env = ev.active_environment()
     file = None
@@ -63,23 +68,18 @@ def freeze2(parser, args, outf, results):
     print(f"# spack freeeze of {results[0].name}/{results[0]._hash[:8]}", file=outf)
     print("packages:", file=outf)
     did_already = set()
+
     for spec in results:
-        with os.popen(f"spack find -dpvf {spec.name}/{spec._hash}") as sffd:
-            for line in sffd:
-                line = line.strip()
-                if line.startswith("--") or line.startswith("==") or not line:
-                    continue
-                ppos = line.find("/")
-                apos = line.find("@")
-                specstr = line[: ppos - 1].strip()
-                path = line[ppos:]
-                name = line[:apos]
-                if not path or path == "0":
-                    continue
-                if name in did_already:
-                    continue
-                did_already.add(name)
-                print(
-                    f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
-                    file=outf,
-                )
+        for dep in spec.traverse():
+            path = dep.prefix
+            name = dep.name
+            specstr = dep.cformat(
+                "{name} {@version} {variants} {%compiler.name}{@compiler.version}"
+            )
+            if name in did_already:
+                continue
+            did_already.add(name)
+            print(
+                f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
+                file=outf,
+            )
