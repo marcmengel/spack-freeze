@@ -6,12 +6,14 @@ import spack.environment as ev
 import spack.cmd.common.arguments as arguments
 import spack.util.spack_yaml as syaml
 
+
 def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["constraint"])
     subparser.add_argument("--file", help="file to write package definitions")
-    
+
+
 def freeze(parser, args):
-    #print("parser is " + repr(parser) + "args: " + repr(args))
+    # print("parser is " + repr(parser) + "args: " + repr(args))
 
     env = ev.active_environment()
     file = None
@@ -22,21 +24,26 @@ def freeze(parser, args):
         file = args.file
     else:
         print("# no --file and no environment, printing to stdout")
-    
+
     if file:
-        with open(file,"w") as ofd:
+        with open(file, "w") as ofd:
             freeze2(parser, args, ofd, results)
     else:
         freeze2(parser, args, sys.stdout, results)
 
     if env and file:
-        add_include(file, env.path+"/spack.yaml")
+        add_include(file, env.path + "/spack.yaml")
+
 
 def add_include(include_file, file):
     with open(file, "r") as fin:
         fdict = syaml.load(fin)
 
-    if not fdict["spack"].get("include",None):
+    # if the file is in the environment, use the basname not the full path
+    if os.path.dirname(include_file) == os.path.dirname(file):
+        include_file = os.path.basename(include_file)
+
+    if not fdict["spack"].get("include", None):
         fdict["spack"]["include"] = []
 
     if include_file in fdict["spack"]["include"]:
@@ -47,8 +54,8 @@ def add_include(include_file, file):
         with open(file, "w") as fout:
             syaml.dump(fdict, fout)
 
+
 def freeze2(parser, args, outf, results):
-    
     print(f"# spack freeeze of {results[0].name}/{results[0]._hash[:8]}", file=outf)
     print("packages:", file=outf)
     did_already = set()
@@ -56,11 +63,11 @@ def freeze2(parser, args, outf, results):
         with os.popen(f"spack find -dpvf {spec.name}/{spec._hash}") as sffd:
             for line in sffd:
                 line = line.strip()
-                if line.startswith("--") or line.startswith('==') or not line:
+                if line.startswith("--") or line.startswith("==") or not line:
                     continue
-                ppos = line.find('/')
-                apos = line.find('@')
-                specstr = line[:ppos-1].strip()
+                ppos = line.find("/")
+                apos = line.find("@")
+                specstr = line[: ppos - 1].strip()
                 path = line[ppos:]
                 name = line[:apos]
                 if not path or path == "0":
@@ -68,6 +75,7 @@ def freeze2(parser, args, outf, results):
                 if name in did_already:
                     continue
                 did_already.add(name)
-                print(f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false", file=outf)
-
-
+                print(
+                    f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
+                    file=outf,
+                )
