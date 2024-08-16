@@ -68,17 +68,21 @@ def freeze2(parser, args, outf, results):
     print(f"# spack freeeze of {results[0].name}/{results[0]._hash[:8]}", file=outf)
     print("packages:", file=outf)
     did_already = set()
-
     for spec in results:
         for dep in spec.traverse():
+            # don't export our externals
+            if dep.external:
+                continue
             path = dep.prefix
             name = dep.name
+            key = name + path
             specstr = dep.cformat(
                 "{name} {@version} {variants} {%compiler.name}{@compiler.version}"
             )
-            if name in did_already:
+            # gcc-runtime and glx are packages that shouldn't be exported
+            if key in did_already or name == "gcc-runtime" or name == "glx":
                 continue
-            did_already.add(name)
+            did_already.add(key)
             print(
                 f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
                 file=outf,
