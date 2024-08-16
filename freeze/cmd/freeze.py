@@ -75,14 +75,13 @@ def freeze2(parser, args, outf, results):
                 continue
             path = dep.prefix
             name = dep.name
-            key = name + path
             specstr = dep.cformat(
                 "{name} {@version} {variants} {%compiler.name}{@compiler.version}"
             )
             # gcc-runtime and glx are packages that shouldn't be exported
-            if key in did_already or name == "gcc-runtime" or name == "glx":
+            if name in did_already or name == "gcc-runtime" or name == "glx":
                 continue
-            did_already.add(key)
+            did_already.add(name)
             print(
                 f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
                 file=outf,
