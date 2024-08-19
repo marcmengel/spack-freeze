@@ -71,20 +71,20 @@ def freeze2(parser, args, outf, results):
     did_already = set()
     for spec in results:
         for dep in spec.traverse():
+
+            name = dep.name
+
             # don't export our externals
             if dep.external:
                 continue
-            path = dep.prefix
-            name = dep.name
-            requirebits =  dep.cformat(
-                "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'"
-            )
-            # clean out build_system=xxx variants
-            requirebits = re.sub("'build_system=[^ ]*'", '' ,requirebits)
-            requirebits = re.sub("' - ''", "", requirebits)
 
             # gcc-runtime and glx are packages that shouldn't be exported
             if name in did_already or name == "gcc-runtime" or name == "glx":
                 continue
             did_already.add(name)
-            print( " ", requirebits, file=outf)
+
+            requirebits = dep.cformat(
+                "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'"
+            )
+
+            print(" ", requirebits, file=outf)
