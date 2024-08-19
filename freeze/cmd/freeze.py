@@ -1,4 +1,5 @@
 import sys
+import re
 import os
 import spack.config
 import spack.cmd
@@ -70,19 +71,20 @@ def freeze2(parser, args, outf, results):
     did_already = set()
     for spec in results:
         for dep in spec.traverse():
+
+            name = dep.name
+
             # don't export our externals
             if dep.external:
                 continue
-            path = dep.prefix
-            name = dep.name
-            specstr = dep.cformat(
-                "{name} {@version} {variants} {%compiler.name}{@compiler.version}"
-            )
+
             # gcc-runtime and glx are packages that shouldn't be exported
             if name in did_already or name == "gcc-runtime" or name == "glx":
                 continue
             did_already.add(name)
-            print(
-                f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
-                file=outf,
+
+            requirebits = dep.cformat(
+                "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'"
             )
+
+            print(" ", requirebits, file=outf)
