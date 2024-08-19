@@ -1,4 +1,5 @@
 import sys
+import re
 import os
 import spack.config
 import spack.cmd
@@ -73,13 +74,14 @@ def freeze2(parser, args, outf, results):
         for dep in spec.traverse():
             path = dep.prefix
             name = dep.name
-            specstr = dep.cformat(
-                "{name} {@version} {variants} {%compiler.name}{@compiler.version}"
+            requirebits =  dep.cformat(
+                "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'"
             )
+            # clean out build_system=xxx variants
+            requirebits = re.sub("'build_system=[^ ]*'", '' ,requirebits)
+            requirebits = re.sub("' - ''", "", requirebits)
+
             if name in did_already:
                 continue
             did_already.add(name)
-            print(
-                f"  {name}:\n    externals:\n    - spec: {specstr}\n      prefix: {path}\n      buildable: false",
-                file=outf,
-            )
+            print( " ", requirebits, file=outf)
