@@ -99,6 +99,6 @@ def freeze2(parser, args, outf, spec):
         requirebits = dep.cformat(
             "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'"
         )
-        requirebits = re.sub('patches=[^ ]*', '', requirebits)
+        requirebits = re.sub(r"patches=[^ ']*", '', requirebits)
 
         print(" ", requirebits, file=outf)
