@@ -88,7 +88,7 @@ def freeze2(parser, args, outf, spec):
     did_already = set()
 
     if args.type == "require":
-       spec_format = "{name}:\n    buildable: false\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'\n    - '/{hash}'"
+       spec_format = "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'\n    - '/{hash}'"
     elif args.type == "external":
        spec_format = "{name}:\n    externals:\n    - spec: '{name} {@version} {variants} /{hash} {%compiler.name}{@compiler.version}'\n      prefix: {prefix}\n    buildable: false"
     else:
