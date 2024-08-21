@@ -7,6 +7,7 @@ import spack.environment as ev
 import spack.cmd.common.arguments as arguments
 import spack.util.spack_yaml as syaml
 import llnl.util.tty.color
+import llnl.util.tty as tty
 
 
 description = "Build packages.yaml fragment to freeze a package in an environment"
@@ -17,7 +18,7 @@ level = "short"
 def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["spec"])
     subparser.add_argument("--file", help="file to write package definitions")
-    subparser.add_argument("--type", help="type of file to generate 'reqire' or 'external' ", default="require")
+    subparser.add_argument("--type", help="type of file to generate 'require' or 'external' ", default="require")
     subparser.add_argument("--requires", help="file to write package definitions")
 
 
@@ -86,10 +87,13 @@ def freeze2(parser, args, outf, spec):
     print("packages:", file=outf)
     did_already = set()
 
-    if args.type == "requires":
-       spec_format = "{name}:\n    buildable:false\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'\n    - '/{hash}'"
-    else:
+    if args.type == "require":
+       spec_format = "{name}:\n    buildable: false\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'\n    - '/{hash}'"
+    elif args.type == "external":
        spec_format = "{name}:\n    externals:\n    - spec: '{name} {@version} {variants} /{hash} {%compiler.name}{@compiler.version}'\n      prefix: {prefix}\n    buildable: false"
+    else:
+        tty.error("Invalid --type value") 
+        exit(1)
 
     for dep in spec.traverse():
 
