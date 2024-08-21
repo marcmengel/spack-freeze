@@ -104,7 +104,7 @@ def freeze2(parser, args, outf, spec):
             continue
 
         # gcc-runtime and glx are packages that shouldn't be exported
-        if name in did_already or name == "gcc-runtime" or name == "glx":
+        if name in did_already or name in ["gcc-runtime", "glx", "cmake", "gmake"]:
             continue
         did_already.add(name)
 
