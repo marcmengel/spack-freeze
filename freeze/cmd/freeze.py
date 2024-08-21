@@ -17,6 +17,8 @@ level = "short"
 def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["spec"])
     subparser.add_argument("--file", help="file to write package definitions")
+    subparser.add_argument("--type", help="type of file to generate 'reqire' or 'external' ", default="require")
+    subparser.add_argument("--requires", help="file to write package definitions")
 
 
 def freeze(parser, args):
@@ -83,6 +85,12 @@ def freeze2(parser, args, outf, spec):
     print(f"# spack freeeze of {spec.name}/{spec._hash[:8]}", file=outf)
     print("packages:", file=outf)
     did_already = set()
+
+    if args.type == "requires":
+       spec_format = "{name}:\n    buildable:false\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'\n    - '/{hash}'"
+    else:
+       spec_format = "{name}:\n    externals:\n    - spec: '{name} {@version} {variants} /{hash} {%compiler.name}{@compiler.version}'\n      prefix: {prefix}\n    buildable: false"
+
     for dep in spec.traverse():
 
         name = dep.name
@@ -96,9 +104,8 @@ def freeze2(parser, args, outf, spec):
             continue
         did_already.add(name)
 
-        requirebits = dep.cformat(
-            "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'"
-        )
-        requirebits = re.sub(r"patches=[^ ']*", '', requirebits)
+        requirebits = dep.cformat(spec_format)
+
+        requirebits = re.sub(r"patches=[^ ']*", '', requirebits).replace("' ", "'")
 
         print(" ", requirebits, file=outf)
