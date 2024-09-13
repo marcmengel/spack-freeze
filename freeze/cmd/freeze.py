@@ -19,7 +19,6 @@ def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["spec"])
     subparser.add_argument("--file", help="file to write package definitions")
     subparser.add_argument("--type", help="type of file to generate 'require' or 'external' or 'ext-no-var'", default="require")
-    subparser.add_argument("--requires", help="file to write package definitions")
 
 
 def freeze(parser, args):
