@@ -18,7 +18,7 @@ level = "short"
 def setup_parser(subparser):
     arguments.add_common_arguments(subparser, ["spec"])
     subparser.add_argument("--file", help="file to write package definitions")
-    subparser.add_argument("--type", help="type of file to generate 'require' or 'external' ", default="require")
+    subparser.add_argument("--type", help="type of file to generate 'require' or 'external' or 'ext-no-var'", default="require")
     subparser.add_argument("--requires", help="file to write package definitions")
 
 
@@ -91,6 +91,8 @@ def freeze2(parser, args, outf, spec):
        spec_format = "{name}:\n    require:\n    - '{@version}'\n    - '{variants}'\n    - '{%compiler.name}{@compiler.version}'\n    - '/{hash}'"
     elif args.type == "external":
        spec_format = "{name}:\n    externals:\n    - spec: '{name} {@version} {variants} /{hash} {%compiler.name}{@compiler.version}'\n      prefix: {prefix}\n    buildable: false"
+    elif args.type == "ext-no-var":
+       spec_format = "{name}:\n    externals:\n    - spec: '{name} {@version} {%compiler.name}{@compiler.version}'\n      prefix: {prefix}\n    buildable: false"
     else:
         tty.error("Invalid --type value") 
         exit(1)
