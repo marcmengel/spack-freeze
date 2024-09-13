@@ -35,10 +35,14 @@ def freeze(parser, args):
     if not specs:
         tty.die("You must supply a spec.")
 
-    if len(specs) != 1:
+    if len(specs) > 1:
         tty.die("Too many specs.  Supply only one.")
 
     spec = spack.cmd.disambiguate_spec(specs[0], None, first=False)
+
+    # skip if input spec is external or special spec
+    if spec.external or spec.name in ["gcc-runtime", "glx", "cmake", "gmake"]:
+        tty.die("skipping external or special spec")
 
     args.no_env = False
 
