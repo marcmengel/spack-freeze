@@ -41,7 +41,7 @@ def freeze(parser, args):
     spec = spack.cmd.disambiguate_spec(specs[0], None, first=False)
 
     # skip if input spec is external or special spec
-    if spec.external or spec.name in ["gcc-runtime", "glx", "cmake", "gmake"]:
+    if spec.external or spec.name in ["gcc-runtime", "glx"]:
         tty.die("skipping external or special spec")
 
     args.no_env = False
