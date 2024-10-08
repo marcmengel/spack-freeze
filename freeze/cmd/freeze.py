@@ -41,7 +41,7 @@ def freeze(parser, args):
     spec = spack.cmd.disambiguate_spec(specs[0], None, first=False)
 
     # skip if input spec is external or special spec
-    if spec.external or spec.name in ["gcc-runtime", "glx", "cmake", "gmake"]:
+    if spec.external or spec.name in ["gcc-runtime", "glx"]:
         tty.die("skipping external or special spec")
 
     args.no_env = False
@@ -109,7 +109,7 @@ def freeze2(parser, args, outf, spec):
             continue
 
         # gcc-runtime and glx are packages that shouldn't be exported
-        if name in did_already or name in ["gcc-runtime", "glx", "cmake", "gmake"]:
+        if name in did_already or name in ["gcc-runtime", "glx"]:
             continue
         did_already.add(name)
 
